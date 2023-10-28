@@ -1,11 +1,39 @@
 --BANCO DE DADOS II
 
-'/Desenvolva um banco de dados e relacione tabelas através de chaves estrangeiras ou nomes de colunas iguais. Siga as instruções:
-crie uma base de dados; 
-crie tabelas nessa base de dados;
-em cada tabela, adicione atributos;
-insira dados em cada tabela;
-utilize os comandos Joins para realizar consultas nas tabela/'
+'/Crie um banco de dados, adicione tabelas e determine quais são os atributos de cada uma. Em seguida, execute um trigger que se relacione com algum comando, como insert, select, delete ou update./'
+
+
+--Trigger executado
+
+
+
+
+--Abaixo tabela criada para executar o trigger
+
+-- Trigger criado para calcular a média das notas quando uma nova nota é inserida
+CREATE OR REPLACE FUNCTION calcular_media_aluno()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE alunos
+    SET media_notas = (
+        SELECT AVG(nota)
+        FROM notas
+        WHERE aluno_id = NEW.aluno_id
+    )
+    WHERE aluno_id = NEW.aluno_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger para ser acionado após uma inserção na tabela Notas
+CREATE TRIGGER atualizar_media_aluno
+AFTER INSERT
+ON notas
+FOR EACH ROW
+EXECUTE FUNCTION calcular_media_aluno();
+
+ALTER TABLE alunos
+ADD COLUMN media_notas numeric(3, 2);
 
 
 
